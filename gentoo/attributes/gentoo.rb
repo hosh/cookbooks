@@ -20,8 +20,12 @@
 
 case platform
 when 'gentoo'
-  set[:gentoo][:portage_chef_dir] = '/etc/portage/chef'
-  set[:gentoo][:portage][:exclude_rsync_file] = '/etc/portage/chef/rsync_excludes'
+  set[:gentoo][:portage_dir] = '/etc/portage'
+  [:keywords, :unmask, :mask, :use].each do |control_file|
+    set[:gentoo][:portage][control_file] = "#{set[:gentoo][:portage_dir]}/package.#{control_file}"
+  end
+  set[:gentoo][:portage_chef_dir] = "#{set[:gentoo][:portage_dir]}/chef"
+  set[:gentoo][:portage][:exclude_rsync_file] = "#{set[:gentoo][:portage_chef_dir]}/rsync_excludes"
 
   default[:gentoo][:portage][:exclude_categories] = %w(
     games-*

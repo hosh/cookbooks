@@ -18,13 +18,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-directory node[:gentoo][:portage_chef_dir] do
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action :create
-  not_if "test -d #{node[:gentoo][:portage_chef_dir]}"
-end
+include_recipe 'gentoo::portage'
 
 template node[:gentoo][:portage][:exclude_rsync_file] do
   owner 'portage'
