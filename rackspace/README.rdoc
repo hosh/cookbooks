@@ -1,5 +1,24 @@
 = DESCRIPTION:
 
+Rackspace Cloud Server recipes
+
+== hosts
+This recipe sets up Ghetto DNS. It queries the server index and builds up a list of nodes that
+have a 172.* address on eth1. From there, it generates a /etc/hosts file. The reason to do this
+is to be able to route all requests through the private IP addresses. This recipe was written 
+to assume your FQDN points to the private IP addresses, and you are using DNS aliases to refer
+to the public IP address.
+
+Additionally, you can specify site-wide IP addresses using the databag "cloud-hosts". For example,
+to specify a global "chef-server":
+
+databag: "cloud-hosts"
+  id: "chef-server"
+  ip: 172.172.172.172
+
+The name for the data-bag is subject to change in future releases of this cookbook. Future 
+versions may also include aliases
+
 = REQUIREMENTS:
 
 = ATTRIBUTES: 
