@@ -1,11 +1,7 @@
 #
-# Use this to exclude categories during emerge --sync
-# ... no, you really don't need nethack on your cloud server ...
-#
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
-# Source:: http://www.gentoo-wiki.info/TIP_Exclude_categories_from_emerge_sync
-# Cookbook Name:: gentoo
-# Recipe:: exclude_categories
+# Cookbook Name:: portage
+# Recipe:: make_conf
 #
 # Copyright 2010, Sparkfly
 #
@@ -21,16 +17,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe 'gentoo::portage'
-
-template node[:gentoo][:rsync][:exclude_rsync_file] do
-  owner 'portage'
-  group 'portage'
+template node[:gentoo][:extra_portage_conf] do
+  owner 'root'
+  group 'root'
   mode '0755'
-  source 'rsync_excludes.erb'
-  variables(:exclude_categories => node[:gentoo][:rsync][:exclude_categories])
+  source 'chef_make.conf.erb'
+  variables(:extra_portage_conf_dir => node[:gentoo][:extra_portage_conf_dir],
+            :sources => Utils::Gentoo::PortageConfs.confs)
 end
 
-portage_conf :rsync_excludes do
-  appends [ :PORTAGE_RSYNC_EXTRA_OPTS, "--exclude-from=#{node[:gentoo][:rsync][:exclude_rsync_file]}" ]
+execute :reset_make_conf do
+  command "rm -f #{node[:gentoo][:extra_portage_conf]} && touch #{node[:gentoo][:extra_portage_conf]}"
+  action :nothing
+  notifies :create, resources(:template => node[:gentoo][:extra_portage_conf]), :immediately
 end

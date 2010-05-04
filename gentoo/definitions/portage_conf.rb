@@ -22,23 +22,36 @@
 
 
 # Overrides examples:
-#   portage_conf :rsync_excludes, :overrides => [ :PORTAGE_RSYNC_EXTRA_OPTS, '/etc/portage/chef/rsync_excludes', '/tmp/other_excludes' ]
-#   portage_conf :rackspace, :overrides => [
-#     [ :PORTAGE_RSYNC_EXTRA_OPTS, '/etc/portage/chef/rsync_excludes', '/tmp/other_excludes' ],
-#     [ :GENTOO_MIRRORS, 'http://mirror.datapipe.net/gentoo', 'http://gentoo.cites.uiuc.edu/pub/gentoo/' ],
-#     [ :PORTAGE_NICENESS, '19' ]
-#   ]
+#   portage_conf :rsync_excludes do
+#     overrides => [ :PORTAGE_RSYNC_EXTRA_OPTS, '/etc/portage/chef/rsync_excludes', '/tmp/other_excludes' ]
+#   end
+#
+#   portage_conf :rackspace do
+#     overrides [
+#       [ :PORTAGE_RSYNC_EXTRA_OPTS, '/etc/portage/chef/rsync_excludes', '/tmp/other_excludes' ],
+#       [ :GENTOO_MIRRORS, 'http://mirror.datapipe.net/gentoo', 'http://gentoo.cites.uiuc.edu/pub/gentoo/' ],
+#       [ :PORTAGE_NICENESS, '19' ]
+#     ]
+#   end
 #
 # Appends examples:
-#   portage_conf :java, appends => [ :USE, 'java', 'ssl' ]
-#   portage_conf :chef_overlay, appends => [
-#     [ :ACCEPT_LICENSE, 'dlj-1.1'], 
-#     [ :PORTDIR_OVERLAY, '/usr/local/portage/chef-overlay' ],
-#     [ :COLLISION_IGNORE, '/usr/bin/prettify_json.rb', '/usr/bin/edit_json.rb'],
-#   ], :overrides => [ :RUBY_TARGETS, 'ruby18' ]
+#   portage_conf :java do
+#     appends [ :USE, 'java', 'ssl' ]
+#   end
+#
+#   portage_conf :chef_overlay do
+#     appends [
+#       [ :ACCEPT_LICENSE, 'dlj-1.1'], 
+#       [ :PORTDIR_OVERLAY, '/usr/local/portage/chef-overlay' ],
+#       [ :COLLISION_IGNORE, '/usr/bin/prettify_json.rb', '/usr/bin/edit_json.rb'],
+#     ] 
+#     overrides [ :RUBY_TARGETS, 'ruby18' ]
+#   end
 #
 # Sources example:
-#   portage_conf :overlays, :sources => %w( /usr/local/portage/layman/make.conf /usr/local/portage/site/make.conf )
+#   portage_conf :overlays do
+#     sources %w( /usr/local/portage/layman/make.conf /usr/local/portage/site/make.conf )
+#   end
 #
 # This definition generates a conf file that is sourced by /etc/portage/chef/make.conf
 # This is intended to allow a mix of recipes, such as rsync_exclude, layman, site_rsync_mirror, binary_repository, etc.
@@ -59,18 +72,20 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [] do
 
   def map_conf(conf_param, &block)
     if params[conf_param].any? && params[conf_param].first.is_a?(Symbol) then
-      block.call(params[conf_param])
+      [ block.call(params[conf_param]) ]
     else
       params[conf_param].map { |element| block.call(element) }
     end
   end
 
+  # Normalize overrides, appends, and sources for output
   overrides = map_conf(:overrides) { |e| map_override(e) }
   appends   = map_conf(:appends) { |e| map_append(e) }
   sources   = params[:sources].uniq
 
   # NOTE: Cheat, I don't know of a better way
   Utils::Gentoo::PortageConfs << params[:name]
+  include_recipe 'gentoo::make_conf'
   extra_portage_conf = "#{node[:gentoo][:extra_portage_conf_dir]}/#{params[:name]}"
 
   template extra_portage_conf do
@@ -79,6 +94,7 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [] do
     mode '0755'
     source 'extra_portage_conf.erb'
     variables(:overrides => overrides, :appends => appends, :sources => sources)
-    notifies :create, resources(:template => node[:gentoo][:extra_portage_conf]), :delayed
+    notifies :run, resources(:execute => :reset_make_conf), :delayed
   end
+
 end
