@@ -20,10 +20,12 @@
 
 case platform
 when 'gentoo'
-  # Directories
+  # Directories and Confs
   set[:gentoo][:portage_dir] = '/etc/portage'
   set[:gentoo][:portage_chef_dir] = "#{set[:gentoo][:portage_dir]}/chef"
   set[:gentoo][:make_conf] = '/etc/make.conf'
+  set[:gentoo][:extra_portage_conf] = "#{set[:gentoo][:portage_chef_dir]}/make.conf"
+  set[:gentoo][:extra_portage_conf_dir] = "#{set[:gentoo][:portage_chef_dir]}/conf.d"
 
   # Generic Gentoo Portage settings (for make.conf)
   # Suggested CFLAGS:

@@ -59,7 +59,24 @@ template node[:gentoo][:make_conf] do
   group 'root'
   mode '0755'
   source 'make.conf.erb'
-  variables(:portage => node[:gentoo][:portage])
+  variables(:portage => node[:gentoo][:portage], :extra_portage_conf => node[:gentoo][:extra_portage_conf])
 end
 
+directory node[:gentoo][:extra_portage_conf_dir] do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+  not_if "test -d #{node[:gentoo][:extra_portage_conf_dir]}"
+end
+
+
+template node[:gentoo][:extra_portage_conf] do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  source 'chef_make.conf.erb'
+  variables(:extra_portage_conf_dir => node[:gentoo][:extra_portage_conf_dir],
+            :sources => Utils::Gentoo::PortageConfs.confs)
+end
 

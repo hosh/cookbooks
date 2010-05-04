@@ -1,4 +1,7 @@
 #
+# Use this to exclude categories during emerge --sync
+# ... no, you really don't need nethack on your cloud server ...
+#
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
 # Source:: http://www.gentoo-wiki.info/TIP_Exclude_categories_from_emerge_sync
 # Cookbook Name:: gentoo
@@ -27,3 +30,5 @@ template node[:gentoo][:rsync][:exclude_rsync_file] do
   source 'rsync_excludes.erb'
   variables(:exclude_categories => node[:gentoo][:rsync][:exclude_categories])
 end
+
+portage_conf :rsync_excludes, :appends => [ :PORTAGE_RSYNC_EXTRA_OPTS, "--exclude-from=#{node[:gentoo][:rsync][:exclude_rsync_file]}" ]
