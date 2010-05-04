@@ -1,0 +1,21 @@
+# These settings were set by the chef recipe that automatically set this
+# Please edit the recipe/attributes rather than this file directly.
+
+CFLAGS="<%= @portage[:CFLAGS] %>"
+CXXFLAGS="<%= @portage[:CXXFLAGS] %>"
+# WARNING: Changing your CHOST is not something that should be done lightly.
+# Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.
+CHOST="<%= @portage[:CHOST] %>"
+# These are the USE flags that were used in addition to what is provided by the
+# profile used for building.
+USE="<%= @portage[:USE] %>"
+MAKEOPTS="<%= @portage[:MAKEOPTS] %>"
+
+#source /usr/local/portage/layman/make.conf
+
+# Chef configs
+# Do not edit. Override with sourced files.
+ACCEPT_LICENSE="<%= @portage[:ACCEPT_LICENSE] %>"
+COLLISION_IGNORE="<%= @portage[:COLLISION_IGNORE] %>"
+PORTDIR_OVERLAY="<%= @portage[:PORTDIR_OVERLAY] %>"
+RUBY_TARGETS="<%= @portage[:RUBY_TARGETS] %>"

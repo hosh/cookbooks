@@ -54,4 +54,12 @@ end
   end
 end
 
+template node[:gentoo][:make_conf] do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  source 'make.conf.erb'
+  variables(:portage => node[:gentoo][:portage])
+end
+
 
