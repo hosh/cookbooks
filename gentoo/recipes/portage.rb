@@ -70,3 +70,11 @@ directory node[:gentoo][:extra_portage_conf_dir] do
   not_if "test -d #{node[:gentoo][:extra_portage_conf_dir]}"
 end
 
+template node[:gentoo][:extra_portage_conf] do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  source 'chef_make.conf.erb'
+  variables(:extra_portage_conf_dir => node[:gentoo][:extra_portage_conf_dir],
+            :sources => [])
+end

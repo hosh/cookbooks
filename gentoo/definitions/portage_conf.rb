@@ -83,9 +83,6 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [] do
   appends   = map_conf(:appends) { |e| map_append(e) }
   sources   = params[:sources].uniq
 
-  # NOTE: Cheat, I don't know of a better way
-  Utils::Gentoo::PortageConfs << params[:name]
-  include_recipe 'gentoo::make_conf'
   extra_portage_conf = "#{node[:gentoo][:extra_portage_conf_dir]}/#{params[:name]}"
 
   template extra_portage_conf do
@@ -94,7 +91,10 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [] do
     mode '0755'
     source 'extra_portage_conf.erb'
     variables(:overrides => overrides, :appends => appends, :sources => sources)
-    notifies :run, resources(:execute => :reset_make_conf), :delayed
   end
+
+  # http://gist.github.com/382024
+  # Append conf file  directly into the conf
+  resources(:template => node[:gentoo][:extra_portage_conf]).variables[:sources] << params[:name]
 
 end
