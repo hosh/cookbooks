@@ -29,7 +29,7 @@ end
   
   # If we are applying this to a legacy system, we want to make sure the old
   # portage control files gets backed up
-  old_control_file = node[:gentoo][:portage][control_file]
+  old_control_file = node[:gentoo][:package][control_file]
   new_control_file = "local_#{control_file}"
   backup = "#{node[:gentoo][:portage_dir]}/#{new_control_file}"
 

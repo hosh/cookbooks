@@ -20,14 +20,18 @@
 
 case platform
 when 'gentoo'
+  # Directories
   set[:gentoo][:portage_dir] = '/etc/portage'
-  [:keywords, :unmask, :mask, :use].each do |control_file|
-    set[:gentoo][:portage][control_file] = "#{set[:gentoo][:portage_dir]}/package.#{control_file}"
-  end
   set[:gentoo][:portage_chef_dir] = "#{set[:gentoo][:portage_dir]}/chef"
-  set[:gentoo][:portage][:exclude_rsync_file] = "#{set[:gentoo][:portage_chef_dir]}/rsync_excludes"
 
-  default[:gentoo][:portage][:exclude_categories] = %w(
+  # Gentoo Packages (e.g. /etc/portage/package.use)
+  [:keywords, :unmask, :mask, :use].each do |control_file|
+    set[:gentoo][:package][control_file] = "#{set[:gentoo][:portage_dir]}/package.#{control_file}"
+  end
+
+  # emerge --sync settings
+  set[:gentoo][:rsync][:exclude_rsync_file] = "#{set[:gentoo][:portage_chef_dir]}/rsync_excludes"
+  default[:gentoo][:rsync][:exclude_categories] = %w(
     games-*
     dev-games/
     app-cdr/

@@ -20,10 +20,10 @@
 
 include_recipe 'gentoo::portage'
 
-template node[:gentoo][:portage][:exclude_rsync_file] do
+template node[:gentoo][:rsync][:exclude_rsync_file] do
   owner 'portage'
   group 'portage'
   mode '0755'
   source 'rsync_excludes.erb'
-  variables(:exclude_categories => node[:gentoo][:portage][:exclude_categories])
+  variables(:exclude_categories => node[:gentoo][:rsync][:exclude_categories])
 end
