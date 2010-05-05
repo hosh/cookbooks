@@ -1,6 +1,6 @@
 #
-# This recipe installs mirrorselect and configures the three fastest mirrors using
-# the technique described at http://en.gentoo-wiki.com/wiki/Mirrorselect
+# This recipe installs gentoolkit, which is needed for a variety of things
+# including the emerge definition
 #
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
 # Source:: http://www.gentoo-wiki.info/TIP_Exclude_categories_from_emerge_sync
@@ -21,18 +21,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-emerge 'mirrorselect'
-
-log 'Starting mirror select. This might take a while.'
-
-execute 'mirrorselect' do
-  command "mirrorselect -s3 -b10 -o -D >> #{node[:gentoo][:mirrorselect_conf]}" 
-  creates node[:gentoo][:mirrorselect_conf]
-end
-
-# make.conf must be regenerated *after* mirrors are selected, otherwise portage 
-# will be in a state unable to emerge mirrorselect
-portage_conf :mirrorselect do
-  sources [ node[:gentoo][:mirrorselect_conf] ]
-  force_regen true 
+portage_package 'gentoolkit' do
+  action :install
+  not_if "test -f /usr/bin/equery"
 end
