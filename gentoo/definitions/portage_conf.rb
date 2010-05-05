@@ -57,7 +57,7 @@
 # This is intended to allow a mix of recipes, such as rsync_exclude, layman, site_rsync_mirror, binary_repository, etc.
 # such that they get included in the make.conf which portage uses to emerge packages.
 
-define :portage_conf, :appends => [], :overrides => [], :sources => [] do
+define :portage_conf, :appends => [], :overrides => [], :sources => [], :force_regen => false do
   include_recipe 'gentoo::portage'
 
   def map_override(list)
@@ -100,10 +100,14 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [] do
 
   # Wait until later to add the variables in. This makes changes to make.conf
   # atomically valid, otherwise emerge will barf.
-  ruby_block do 
-    block do
-      chef_make_conf.variables[:sources] << params[:name]
-      chef_make_conf.run_action(:create)
+  if params[:force_regen]
+    ruby_block do 
+      block do
+        chef_make_conf.variables[:sources] << params[:name]
+        chef_make_conf.run_action(:create)
+      end
     end
+  else 
+    chef_make_conf.variables[:sources] << params[:name]
   end
 end

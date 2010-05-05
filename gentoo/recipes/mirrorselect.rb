@@ -33,6 +33,9 @@ execute 'mirrorselect' do
   creates node[:gentoo][:mirrorselect_conf]
 end
 
+# make.conf must be regenerated *after* mirrors are selected, otherwise portage 
+# will be in a state unable to emerge mirrorselect
 portage_conf :mirrorselect do
   sources [ node[:gentoo][:mirrorselect_conf] ]
+  force_regen true 
 end
