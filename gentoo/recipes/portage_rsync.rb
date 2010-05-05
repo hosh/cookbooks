@@ -1,11 +1,11 @@
 #
-# Use this to setup a site rsync mirror. Use the portage_rsync recipe
-# to actually point to this server.
+# Use this to sync to a local portage mirror. Use the portage_rsync_server recipe
+# to actually set up a mirror
 #
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
 # Source:: http://www.gentoo.org/doc/en/rsync.xml#doc_chap2
 # Cookbook Name:: gentoo
-# Recipe:: portage_rsync_server
+# Recipe:: portage_rsync
 #
 # Copyright 2010, Sparkfly
 #
@@ -21,20 +21,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe 'gentoo::portage'
+if node[:gentoo][:rsync][:uri]
+  include_recipe 'gentoo::portage'
 
-template '/etc/rsyncd.conf' do
-  owner 'root'
-  group 'root'
-  mode '0644'
-  source 'rsyncd.conf.erb'
-  variables(:rsyncd => node[:gentoo][:rsyncd])
+  log "Setting portage sync to: #{node[:gentoo][:rsync][:uri]}"
+
+  portage_conf :portage_rsync do
+    overrides [ :SYNC, node[:gentoo][:rsync][:uri] ]
+  end
+else
+  log "No rsync defined, defaulting to system setting."
 end
-
-service 'rsyncd' do
-  supports :restart => true
-  action :start
-  subscribes :restart, resources(:template => '/etc/rsyncd.conf'), :immediately
-end
-
-rc_update_add :rsyncd

@@ -78,6 +78,7 @@ when 'gentoo'
       x11-wm/
       xfce-*
   )
+  default[:gentoo][:rsync][:uri] = nil
 
   set[:gentoo][:mirrorselect_conf] = "#{node[:gentoo][:portage_chef_dir]}/mirrorselect"
 
