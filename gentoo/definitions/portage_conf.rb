@@ -95,6 +95,15 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [] do
 
   # http://gist.github.com/382024
   # Append conf file  directly into the conf
-  resources(:template => node[:gentoo][:extra_portage_conf]).variables[:sources] << params[:name]
 
+  chef_make_conf = resources(:template => node[:gentoo][:extra_portage_conf])
+
+  # Wait until later to add the variables in. This makes changes to make.conf
+  # atomically valid, otherwise emerge will barf.
+  ruby_block do 
+    block do
+      chef_make_conf.variables[:sources] << params[:name]
+      chef_make_conf.run_action(:create)
+    end
+  end
 end

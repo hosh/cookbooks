@@ -54,31 +54,33 @@ when 'gentoo'
   # emerge --sync settings
   set[:gentoo][:rsync][:exclude_rsync_file] = "#{set[:gentoo][:portage_chef_dir]}/rsync_excludes"
   default[:gentoo][:rsync][:exclude_categories] = %w(
-    games-*
-    dev-games/
-    app-cdr/
-    app-laptop/
-    app-mobilephone/
-    app-office/
-    app-pda/
-    gnome-*
-    gnustep-*
-    gpe-*
-    media-radio/
-    media-sound/
-    media-tv/
-    kde-*
-    rox-*
-    x11-apps/
-    x11-base/
-    x11-drivers/
-    x11-misc/
-    x11-plugins/
-    x11-terms/
-    x11-themes/
-    x11-wm/
-    xfce-*
+      games-*
+      dev-games/
+      app-cdr/
+      app-laptop/
+      app-mobilephone/
+      app-office/
+      app-pda/
+      gnome-*
+      gnustep-*
+      gpe-*
+      media-radio/
+      media-sound/
+      media-tv/
+      kde-*
+      rox-*
+      x11-apps/
+      x11-base/
+      x11-drivers/
+      x11-misc/
+      x11-plugins/
+      x11-terms/
+      x11-themes/
+      x11-wm/
+      xfce-*
   )
+
+  set[:gentoo][:mirrorselect_conf] = "#{node[:gentoo][:portage_chef_dir]}/mirrorselect"
   
 else
   raise "This cookbook is Gentoo-only"
