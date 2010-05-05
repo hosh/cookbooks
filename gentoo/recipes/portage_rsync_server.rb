@@ -3,7 +3,7 @@
 # to actually point to this server.
 #
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
-# Source:: http://www.gentoo-wiki.info/TIP_Exclude_categories_from_emerge_sync
+# Source:: http://www.gentoo.org/doc/en/rsync.xml#doc_chap2
 # Cookbook Name:: gentoo
 # Recipe:: portage_rsync_server
 #
