@@ -85,14 +85,6 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [], :force_r
 
   extra_portage_conf = "#{node[:gentoo][:extra_portage_conf_dir]}/#{params[:name]}"
 
-  template extra_portage_conf do
-    owner 'root'
-    group 'root'
-    mode '0755'
-    source 'extra_portage_conf.erb'
-    variables(:overrides => overrides, :appends => appends, :sources => sources)
-  end
-
   # http://gist.github.com/382024
   # Append conf file  directly into the conf
 
@@ -110,4 +102,17 @@ define :portage_conf, :appends => [], :overrides => [], :sources => [], :force_r
   else 
     chef_make_conf.variables[:sources] << params[:name]
   end
+
+  template extra_portage_conf do
+    owner 'root'
+    group 'root'
+    mode '0755'
+    source 'extra_portage_conf.erb'
+    variables(:overrides => overrides, :appends => appends, :sources => sources)
+    
+    # If make.conf changes, we want to regen this file immediately to keep things atomic
+    # Otherwise, we would have a borked portage
+    subscribes :create, chef_make_conf, :immediately
+  end
+
 end
