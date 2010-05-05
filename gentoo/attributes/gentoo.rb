@@ -89,6 +89,14 @@ when 'gentoo'
   # Chef-Overlay
   default[:gentoo][:overlays][:chef_overlay][:dir] = '/usr/local/portage/chef-overlay'
   default[:gentoo][:overlays][:chef_overlay][:rev] = '00e58aa07732cdd1fd656b67aa5b1c7b11ab0732'
+
+  # portage_rsync_server
+  default[:gentoo][:rsyncd][:max_connections] = 5
+  set[:gentoo][:rsyncd][:uid] = 'nobody'
+  set[:gentoo][:rsyncd][:gid] = 'nobody'
+  default[:gentoo][:rsyncd][:exclude] = %w( distfiles/ packages/ )
+  default[:gentoo][:rsyncd][:hosts_allow] = ''
+  default[:gentoo][:rsyncd][:hosts_deny] = ''
   
 else
   raise "This cookbook is Gentoo-only"
