@@ -23,7 +23,7 @@
 
 package 'mirrorselect' do
   action :install
-  not_if "test -z `qcheck -q -B mirrorselect`"
+  only_if "test -z `equery -q list -e mirrorselect`"
 end
 
 log 'Starting mirror select. This might take a while.'
