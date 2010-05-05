@@ -28,9 +28,14 @@ when 'gentoo'
   set[:gentoo][:extra_portage_conf_dir] = "#{set[:gentoo][:portage_chef_dir]}/conf.d"
 
   # Generic Gentoo Portage settings (for make.conf)
-  # Suggested CFLAGS:
+  #
+  # Suggested CFLAGS (Assuming Gentoo 10.1 / GCC 4.3+)
   #   - Slicehost: -O2 -march=opteron
   #   - Rackspace: -O2 -march=barcelona
+  #   - MacBookPros: -O2 -pipe -march=native
+  #   - i5, i7 Desktops: -O2 -pipe -march=native
+  #   See: http://en.gentoo-wiki.com/wiki/Safe_Cflags
+  #
   # Suggested additional USE flags: mmx sse sse2
   # (Turn off piping since they eat up memory. Try to to stick to j1 for MAKEOPTS)
   # Override these in your own site-cookbook. You may also override these per-node
@@ -39,12 +44,6 @@ when 'gentoo'
   default[:gentoo][:portage][:CHOST] = 'x86_64-pc-linux-gnu'
   default[:gentoo][:portage][:USE] = '-X -gnome -gtx -kde -qt unicode ipv6 idn threads'
   default[:gentoo][:portage][:MAKEOPTS] = '-j4'
-
-  # Chef-specific Gentoo Portage settings
-  default[:gentoo][:portage][:ACCEPT_LICENSE] = '${ACCEPT_LICENSE} dlj-1.1'
-  default[:gentoo][:portage][:COLLISION_IGNORE] = '${COLLISION_IGNORE} /usr/bin/prettify_json.rb /usr/bin/edit_json.rb'
-  default[:gentoo][:portage][:PORTDIR_OVERLAY] = "${PORTDIR_OVERLAY} /usr/local/portage/chef-overlay"
-  default[:gentoo][:portage][:RUBY_TARGETS] = "ruby18"
 
   # Gentoo Packages (e.g. /etc/portage/package.use)
   [:keywords, :unmask, :mask, :use].each do |control_file|
@@ -81,6 +80,15 @@ when 'gentoo'
   )
 
   set[:gentoo][:mirrorselect_conf] = "#{node[:gentoo][:portage_chef_dir]}/mirrorselect"
+
+  # Override this in roles / site attributes
+  default[:gentoo][:cron][:emerge_sync][:hour]   = rand(4) + 1
+  default[:gentoo][:cron][:emerge_sync][:minute] = rand(60)
+  default[:gentoo][:cron][:emerge_sync][:always_upgrade_portage] = false
+
+  # Chef-Overlay
+  default[:gentoo][:overlays][:chef_overlay][:dir] = '/usr/local/portage/chef-overlay'
+  default[:gentoo][:overlays][:chef_overlay][:rev] = '00e58aa07732cdd1fd656b67aa5b1c7b11ab0732'
   
 else
   raise "This cookbook is Gentoo-only"

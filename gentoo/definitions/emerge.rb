@@ -60,3 +60,15 @@ define :emerge, :action => :install, :check_corruption => true do
     not_if has_good_package
   end
 end
+
+# This might be better implemented as a full Resource/Provider
+define :emerge_sync do
+  execute "emerge_sync" do
+    command "emerge --sync"
+  end
+
+  portage_package "portage" do
+    action :upgrade
+    options "--update" # Portage provider does not properly implement upgrade action
+  end
+end

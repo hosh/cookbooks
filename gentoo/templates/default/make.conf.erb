@@ -15,9 +15,4 @@ MAKEOPTS="<%= @portage[:MAKEOPTS] %>"
 
 # Chef configs
 # Do not edit. Override with sourced files.
-ACCEPT_LICENSE="<%= @portage[:ACCEPT_LICENSE] %>"
-COLLISION_IGNORE="<%= @portage[:COLLISION_IGNORE] %>"
-PORTDIR_OVERLAY="<%= @portage[:PORTDIR_OVERLAY] %>"
-RUBY_TARGETS="<%= @portage[:RUBY_TARGETS] %>"
-
 source <%= @extra_portage_conf %>
