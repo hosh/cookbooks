@@ -23,7 +23,9 @@
 
 emerge 'mirrorselect'
 
-log 'Starting mirror select. This might take a while.'
+log 'Starting mirror select. This might take a while.' do
+  not_if "test -f #{node[:gentoo][:mirrorselect_conf]}"
+end
 
 execute 'mirrorselect' do
   command "mirrorselect -s3 -b10 -o -D >> #{node[:gentoo][:mirrorselect_conf]}" 
