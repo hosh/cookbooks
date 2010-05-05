@@ -1,11 +1,14 @@
 #
-# Use this to setup a site rsync mirror. Use the local_portage_rsync recipe
-# to actually point to this server.
+# Usage::
+#   Use this to add services to runlevels
+#   rc_update_add :rsyncd
+#   rc_update_add 'net.eth0' do
+#     runlevel :boot
+#   end
 #
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
-# Source:: http://www.gentoo-wiki.info/TIP_Exclude_categories_from_emerge_sync
 # Cookbook Name:: gentoo
-# Recipe:: portage_rsync_server
+# Definition:: rc_update
 #
 # Copyright 2010, Sparkfly
 #
@@ -21,20 +24,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe 'gentoo::portage'
-
-template '/etc/rsyncd.conf' do
-  owner 'root'
-  group 'root'
-  mode '0644'
-  source 'rsyncd.conf.erb'
-  variables(:rsyncd => node[:gentoo][:rsyncd])
+# Pattern taken from: http://github.com/engineyard/ey-cloud-recipes/blob/master/cookbooks/ntp/recipes/default.rb
+define :rc_update_add, :runlevel => 'default' do
+  execute "add-#{params[:name]}-to-#{params[:runlevel]}" do
+    command "rc-update add #{params[:name]} #{params[:runlevel]}"
+    not_if "rc-status #{params[:runlevel]} | grep #{params[:name]}"
+  end
 end
-
-service 'rsyncd' do
-  supports :restart => true
-  action :start
-  subscribes :restart, resources(:template => '/etc/rsyncd.conf'), :immediately
-end
-
-rc_update_add :rsyncd
