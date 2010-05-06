@@ -98,6 +98,12 @@ when 'gentoo'
   default[:gentoo][:rsyncd][:exclude] = %w( distfiles/ packages/ )
   default[:gentoo][:rsyncd][:hosts_allow] = ''
   default[:gentoo][:rsyncd][:hosts_deny] = ''
+
+  # portage_binhost_server
+  default[:gentoo][:portage_binhost_server][:listen] = "80"
+  default[:gentoo][:portage_binhost_server][:server_name] = "binhost-server"
+  default[:gentoo][:portage_binhost_server][:repo_dir] = '/var/www/portage_binhost'
+  default[:gentoo][:portage_binhost_server][:autoindex] = 'on'
   
 else
   raise "This cookbook is Gentoo-only"

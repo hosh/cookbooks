@@ -18,7 +18,18 @@
 # limitations under the License.
 #
 
-define :nginx_site, :enable => true do
+define :nginx_available_site, :no_reload => false do
+  template "#{node[:nginx][:dir]}/sites-available/#{params[:name]}" do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    source "#{params[:name]}.nginx-site.erb"
+    notifies :reload, resources(:service => 'nginx') unless params[:no_reload]
+  end
+end
+
+define :nginx_site, :enable => true  do
+
   if params[:enable]
     execute "nginx-enable-site #{params[:name]}" do
       command "/usr/sbin/nginx-enable-site #{params[:name]}"

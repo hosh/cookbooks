@@ -1,0 +1,13 @@
+server {
+  listen <%= @node[:gentoo][:portage_binhost_server][:listen] %>;                 
+  server_name  <%= @node[:gentoo][:portage_binhost_server][:server_name] %>;
+
+  access_log  <%= @node[:nginx][:log_dir] %>/portage_binhost.access.log;
+
+  location / {                 
+    root   <%= @node[:gentoo][:portage_binhost_server][:repo_dir] %>;
+    autoindex <%= @node[:gentoo][:portage_binhost_server][:autoindex] %>;
+  }
+
+
+}   
