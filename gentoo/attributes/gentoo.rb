@@ -104,6 +104,9 @@ when 'gentoo'
   default[:gentoo][:portage_binhost_server][:server_name] = "binhost-server"
   default[:gentoo][:portage_binhost_server][:repo_dir] = '/var/www/portage_binhost'
   default[:gentoo][:portage_binhost_server][:autoindex] = 'on'
+
+  # portage_binhost
+  default[:gentoo][:portage_binhost] = nil
   
 else
   raise "This cookbook is Gentoo-only"
