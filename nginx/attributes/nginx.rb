@@ -8,6 +8,12 @@ when "debian","ubuntu"
   set[:nginx][:log_dir] = "/var/log/nginx"
   set[:nginx][:user]    = "www-data"
   set[:nginx][:binary]  = "/usr/sbin/nginx"
+when "gentoo"
+  set[:nginx][:dir]     = "/etc/nginx"
+  set[:nginx][:log_dir] = "/var/log/nginx"
+  set[:nginx][:user]    = "nginx"
+  set[:nginx][:group]   = "nginx"
+  set[:nginx][:binary]  = "/usr/sbin/nginx"
 else
   set[:nginx][:dir]     = "/etc/nginx"
   set[:nginx][:log_dir] = "/var/log/nginx"
@@ -15,12 +21,20 @@ else
   set[:nginx][:binary]  = "/usr/sbin/nginx"
 end
 
-set_unless[:nginx][:configure_flags] = [
-  "--prefix=#{nginx[:install_path]}",
-  "--conf-path=#{nginx[:dir]}/nginx.conf",
-  "--with-http_ssl_module",
-  "--with-http_gzip_static_module"
-]
+case platform
+when "gentoo"
+  default[:nginx][:use_flags] = "ssl static-gzip"
+else
+  set_unless[:nginx][:configure_flags] = [
+    "--prefix=#{nginx[:install_path]}",
+    "--conf-path=#{nginx[:dir]}/nginx.conf",
+    "--with-http_ssl_module",
+    "--with-http_gzip_static_module"
+  ]
+end
+
+default[:nginx][:use_epoll] = 'on'
+default[:nginx][:ignore_invalid_headers] = 'on'
 
 set_unless[:nginx][:gzip] = "on"
 set_unless[:nginx][:gzip_http_version] = "1.0"

@@ -4,12 +4,13 @@ license           "Apache 2.0"
 description       "Installs and configures nginx"
 version           "0.10"
 
-%w{ ubuntu debian }.each do |os|
+%w{ ubuntu debian gentoo}.each do |os|
   supports os
 end
 
+# Uh ...
 %w{ build-essential runit }.each do |cb|
-  depends cb
+    depends cb
 end
 
 attribute "nginx/dir",
@@ -25,6 +26,11 @@ attribute "nginx/log_dir",
 attribute "nginx/user",
   :display_name => "Nginx User",
   :description => "User nginx will run as",
+  :default => "www-data"
+
+attribute "nginx/group",
+  :display_name => "Nginx User",
+  :description => "Group nginx will run as",
   :default => "www-data"
 
 attribute "nginx/binary",
@@ -77,7 +83,17 @@ attribute "nginx/worker_connections",
   :description => "Number of connections per worker",
   :default => "1024"
 
+attribute "nginx/use_epoll",
+  :display_name => "Nginx use epoll",
+  :description => "Use Linux epoll",
+  :default => 'on'
+
 attribute "nginx/server_names_hash_bucket_size",
   :display_name => "Nginx Server Names Hash Bucket Size",
   :default => "64"
+
+attribute "nginx/ignore_invalid_headers",
+  :display_name => "Nginx Ignore Invalid Headers",
+  :description => "Ignore invalid headers, resist DOS attacks",
+  :default => 'on'
 

@@ -26,6 +26,7 @@
 
 # Pattern taken from: http://github.com/engineyard/ey-cloud-recipes/blob/master/cookbooks/ntp/recipes/default.rb
 define :rc_update_add, :runlevel => 'default' do
+  log "Adding #{params[:name]} to runlevel #{params[:runlevel]}"
   execute "add-#{params[:name]}-to-#{params[:runlevel]}" do
     command "rc-update add #{params[:name]} #{params[:runlevel]}"
     not_if "rc-status #{params[:runlevel]} | grep #{params[:name]}"

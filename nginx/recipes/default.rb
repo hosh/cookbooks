@@ -18,7 +18,17 @@
 # limitations under the License.
 #
 
-package "nginx"
+case node[:platform]
+when "gentoo"
+  nginx_package = 'www-servers/nginx'
+  use_flags :nginx do
+    package nginx_package
+    flags node[:nginx][:use_flags] 
+  end
+  emerge nginx_package
+else
+  package "nginx"
+end
 
 directory node[:nginx][:log_dir] do
   mode 0755
@@ -26,7 +36,7 @@ directory node[:nginx][:log_dir] do
   action :create
 end
 
-%w{nxensite nxdissite}.each do |nxscript|
+%w{nginx-enable-site nginx-disable-site}.each do |nxscript|
   template "/usr/sbin/#{nxscript}" do
     source "#{nxscript}.erb"
     mode 0755
@@ -43,6 +53,17 @@ template "nginx.conf" do
   mode 0644
 end
 
+# Because not all platforms installs this
+directory "#{node[:nginx][:dir]}/sites-available" do
+  action :create
+  not_if "test -d #{node[:nginx][:dir]}/sites-available"
+end
+
+directory "#{node[:nginx][:dir]}/sites-enabled" do
+  action :create
+  not_if "test -d #{node[:nginx][:dir]}/sites-enabled"
+end
+
 template "#{node[:nginx][:dir]}/sites-available/default" do
   source "default-site.erb"
   owner "root"
@@ -53,4 +74,10 @@ end
 service "nginx" do
   supports :status => true, :restart => true, :reload => true
   action [ :enable, :start ]
+end
+
+case node[:platform]
+when 'gentoo'
+  rc_update_add :nginx
+else
 end
