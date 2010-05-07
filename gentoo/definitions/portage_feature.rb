@@ -1,10 +1,15 @@
 #
-# Use this if you want portage to emit binary packages on when emerging
+# Usage::
+#   Use this to enable portage FEATURES flags
+# Examples:
+#   portage_feature :buildpkg
+#   portage_feature :nodocs do
+#     flags %w( nodoc noinfo noman )
+#   end
 #
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
-# Source:: http://www.gentoo.org/doc/en/handbook/handbook-x86.xml?part=2&chap=3#doc_chap4 
 # Cookbook Name:: gentoo
-# Recipe:: feature_buildpkg
+# Definition:: portage_feature
 #
 # Copyright 2010, Sparkfly
 #
@@ -20,6 +25,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include_recipe 'gentoo::portage'
+define :portage_feature, :flags => nil do
+  flags = params[:name] unless flags
+  flags.join!(' ') if flags.is_a?(Array)
 
-portage_feature :buildpkg
+  log "Enabling FEATURES: #{flags}"
+
+  portage_conf "feature_#{params[:name]}" do
+    appends [ :FEATURES, flags ]
+  end
+end
+
