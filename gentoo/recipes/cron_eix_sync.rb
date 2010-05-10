@@ -1,10 +1,16 @@
 #
-# Adds a cron job for emerge --sync
-# Do not use this if you are using eix, use cron_eix_sync recipe instead
+# Adds a cron job for eix sync
+# Do not add this if you are using emerge --sync, use cron_emerge_sync recipe instead
+#
+# cron_eix_sync uses the same attributes as cron_emerge_sync:
+#   gentoo.cron.emerge_sync.always_upgrade_portage 
+#   gentoo.cron.emerge_sync.hour
+#   gentoo.cron.emerge_sync.minute
 #
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
+# Source:: http://anothersysadmin.wordpress.com/2007/12/05/eix-enhancing-the-gentoo-experience/
 # Cookbook Name:: gentoo
-# Recipe:: cron_emerge_sync
+# Recipe:: cron_eix_sync
 #
 # Copyright 2010, Sparkfly
 #
@@ -24,11 +30,11 @@ include_recipe 'gentoo::portage'
 
 emerge_sync = node[:gentoo][:cron][:emerge_sync]
 
-emerge_sync_command = [ "emerge -q --sync" ]
-emerge_sync_command << "emerge -q -g -u portage" if emerge_sync[:always_upgrade_portage]
+eix_sync_command = [ "eix-sync" ]
+eix_sync_command << "emerge -q -g -u portage" if emerge_sync[:always_upgrade_portage]
 
 cron "emerge_sync" do
   hour    emerge_sync[:hour]
   minute  emerge_sync[:minute]
-  command emerge_sync_command.join(' && ')
+  command eix_sync_command.join(' && ')
 end
