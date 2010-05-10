@@ -16,34 +16,66 @@ module Opscode
         end
       end
 
+      
+      # Returns the portage package control file name:
+      # =net-analyzer/nagios-core-3.1.2 => chef.net-analyzer-nagios-core-3-1-2
+      # =net-analyzer/netdiscover => chef.net-analyzer-netdiscover
+      def package_conf_file(conf_type, name)
+        conf_dir = "/etc/portage/package.#{conf_type}"
+        raise Chef::Exceptions::Package, "#{conf_type} should be a directory." unless ::File.directory?(conf_dir)
+
+        package_atom = name.strip.split(/\s+/).first
+        package_file = package_atom.gsub(/[\/\.]/, "-").gsub(/[^a-z0-9_\-]/i, "")
+        return "#{conf_dir}/chef.#{package_file}"
+      end
+
+      def same_content?(filepath, content)
+        content.strip == ::File.read(filepath).strip
+      end
+
+      def create_package_conf_file(conf_file, content)
+        return nil if ::File.exists?(conf_file) && same_content?(conf_file, content)
+        
+        ::File.open("#{conf_file}", "w") { |f| f << content + "\n" }
+        Chef::Log.info("Created #{conf_file} \"#{content}\".")
+        true
+      end
+
+      def delete_package_conf_file(conf_file)
+        return nil unless ::File.exists?(conf_file)
+
+        ::File.delete(package_foo_path)
+        Chef::Log.info("Deleted #{conf_file}")
+        true
+      end
+
       # Creates or deletes per package portage attributes. Returns true if it
       # changes (sets or deletes) something.
       # * action == :create || action == :delete
       # * foo_category =~ /\A(use|keywords|mask|unmask)\Z/
-      def manage_package_foo(action, foo_category, foo_data)
-        foo_dir = "/etc/portage/package.#{foo_category}"
-
-        if ::File.directory?(foo_dir)
-          package_atom = foo_data.strip.split(/\s+/).first
-          # =net-analyzer/nagios-core-3.1.2 => net-analyzer-nagios-core-3-1-2
-          # =net-analyzer/netdiscover => net-analyzer-netdiscover
-          package_file = package_atom.gsub(/[\/\.]/, "-").gsub(/[^a-z0-9_\-]/i, "")
-          package_foo_path = "#{foo_dir}/#{package_file}"
-
-          if action == :create
-            if !::File.exists?(package_foo_path) || foo_data.strip != ::File.read(package_foo_path).strip
-              ::File.open("#{package_foo_path}", "w") { |f| f << foo_data + "\n" }
-              Chef::Log.info("Created package.#{foo_category} \"#{foo_data}\".")
-              true
-            end
-          elsif action == :delete && ::File.exists?(package_foo_path)
-            ::File.delete(package_foo_path)
-            Chef::Log.info("Deleted package.#{foo_category} of \"#{package_atom}\".")
-            true
-          end
-
+      def manage_package_conf(action, conf_type, name, flags = nil)
+        conf_file = package_conf_file(conf_type, name)
+        case action
+        when :create
+          create_package_conf_file(conf_file, normalize_package_conf_content(name, flags))
+        when :delete
+          delete_package_conf_file(conf_file)
         else
-          raise Chef::Exceptions::Package, "#{foo_dir} should be a directory."
+          raise Chef::Exceptions::Package, "Unknown action :#{action}."
+        end
+      end
+
+      # Normalizes package conf content
+      def normalize_package_conf_content(name, flags = nil)
+        [ name, normalize_flags(flags) ].join(' ')
+      end
+
+      # Normalizes String / Arrays
+      def normalize_flags(flags)
+        if flags.is_a?(Array)
+          flags.uniq.sort.join(' ')
+        else
+          flags
         end
       end
 

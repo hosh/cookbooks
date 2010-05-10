@@ -1,9 +1,9 @@
 include Opscode::Gentoo::Portage
 
 action :create do
-  manage_package_foo(:create, "use", new_resource.name)
+  manage_package_conf(:create, "use", new_resource.package, new_resource.use)
 end
 
 action :delete do
-  manage_package_foo(:delete, "use", new_resource.name)
+  manage_package_conf(:delete, "use", new_resource.name)
 end
