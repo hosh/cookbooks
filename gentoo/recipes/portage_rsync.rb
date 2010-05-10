@@ -21,7 +21,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if node[:gentoo][:rsync][:uri]
+if node[:gentoo][:rsync][:uri] && node[:gentoo][:rsync][:uri].any?
   include_recipe 'gentoo::portage'
 
   log "Setting portage sync to: #{node[:gentoo][:rsync][:uri]}"
@@ -31,4 +31,6 @@ if node[:gentoo][:rsync][:uri]
   end
 else
   log "No rsync defined, defaulting to system setting."
+
+  portage_conf :portage_rsync
 end

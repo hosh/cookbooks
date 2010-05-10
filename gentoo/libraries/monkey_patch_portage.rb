@@ -9,7 +9,7 @@ class Chef
 
         # Override this in your libraries/
         def default_emerge_options(options)
-          "--color n --nospinner --quiet#{options}"
+          "--color n --nospinner --quiet #{options}"
         end
         
         # Override this in your libraries/
@@ -24,7 +24,7 @@ class Chef
 
         def emerge_package(pkg, emerge_options = nil)
           emerge_options ||= default_emerge_install_options
-          "emerge #{emerge_options}#{expand_options(@new_resource.options)} #{pkg}"
+          "emerge #{emerge_options} #{expand_options(@new_resource.options)} #{pkg}"
         end
 
         def full_package_name(name, version)
