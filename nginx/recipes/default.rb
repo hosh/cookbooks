@@ -18,17 +18,20 @@
 # limitations under the License.
 #
 
-case node[:platform]
+nginx_package = case node[:platform]
 when "gentoo"
-  nginx_package = 'www-servers/nginx'
-  use_flags :nginx do
-    package nginx_package
-    flags node[:nginx][:use_flags] 
-  end
-  emerge nginx_package
+  'www-servers/nginx'
 else
-  package "nginx"
+  'nginx'
 end
+
+if node[:platform] == 'gentoo'
+  gentoo_package_use nginx_package do
+    use node[:nginx][:use_flags] 
+  end
+end
+
+package nginx_package
 
 directory node[:nginx][:log_dir] do
   mode 0755
