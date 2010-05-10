@@ -75,9 +75,3 @@ service "nginx" do
   supports :status => true, :restart => true, :reload => true
   action [ :enable, :start ]
 end
-
-case node[:platform]
-when 'gentoo'
-  rc_update_add :nginx
-else
-end

@@ -36,5 +36,3 @@ service 'rsyncd' do
   action :start
   subscribes :restart, resources(:template => '/etc/rsyncd.conf'), :immediately
 end
-
-rc_update_add :rsyncd
