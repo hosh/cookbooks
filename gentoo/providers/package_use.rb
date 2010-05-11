@@ -1,4 +1,4 @@
-include Gentoo::Portage::Package::Conf
+include Gentoo::Portage::PackageConf
 
 action :create do
   manage_package_conf(:create, "use", new_resource.package, new_resource.use)
