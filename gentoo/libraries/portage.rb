@@ -53,7 +53,8 @@ module Gentoo
 
         # Set package metadata that may influence our candidate search.
         %w(keywords mask unmask).each { |conf_type|
-          if conf_flags = new_resource.send(conf)
+          conf_flags = nil
+          if new_resource.respond_to?(conf_type) && conf_flags = new_resource.send(conf_type)
             raise Chef::Exceptions::Package, " gentoo_package.#{conf_type} not fully supported yet"
           end
         }
@@ -64,7 +65,7 @@ module Gentoo
         end
 
         # Setup package-specific USE flags
-        if new_resource.use
+        if new_resource.respond_to?(:use) && new_resource.use
           manage_package_conf(:create, "use", package_atom, new_resource.use)
         end
 
@@ -74,14 +75,14 @@ module Gentoo
 
       def package_info_for(package_name)
         info = begin
-                 package_info_from_eix(package_name)
-               rescue Chef::Exceptions::Package => err
-                 Chef::Log.error("Error attempting to use EIX: #{err.inspect}")
-                 Chef::Log.info("Falling back to portage.")
-                 package_info_from_portage(package_name)
-               end
-        info[:package_atom] = full_package_atom(info[:category]. info[:package_name], new_resource.version)
-        into
+          package_info_from_eix(package_name)
+        rescue Chef::Exceptions::Package => err
+          Chef::Log.error("Error attempting to use EIX: #{err.inspect}")
+          Chef::Log.info("Falling back to portage.")
+          package_info_from_portage(package_name)
+        end
+        info[:package_atom] = full_package_atom(info[:category], info[:package_name], new_resource.version)
+        info
       end
 
       private
