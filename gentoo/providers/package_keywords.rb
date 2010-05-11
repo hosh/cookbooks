@@ -1,4 +1,4 @@
-include Gentoo::Portage
+include Gentoo::Portage::PackageConf
 
 action :create do
   manage_package_conf(:create, "keywords", new_resource.package, new_resource.keywords)

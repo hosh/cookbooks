@@ -1,4 +1,5 @@
-include Gentoo::Portage
+include Gentoo::Portage::PackageConf
+include Gentoo::Portage::Emerge
 
 action :install do
   conditional_emerge(new_resource, :install)

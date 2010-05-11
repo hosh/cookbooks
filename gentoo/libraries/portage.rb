@@ -2,6 +2,39 @@
 
 module Gentoo
   module Portage
+    module Emerge
+    # Override this in your libraries/
+    def default_emerge_options(options)
+      "--color n --nospinner --quiet #{options}"
+    end
+
+    # Override this in your libraries/
+    # If you want:
+    #   -g -> feature_getbinpkg
+    #   -b -> feature_buildpkg
+    #   --binpkg-respect-use y -> portage_binpkg_respect_use
+    def default_emerge_install_options
+      default_emerge_options
+    end
+
+    # Override this in your libraries/
+    def default_emerge_upgrade_options
+      default_emerge_options('-u -D')
+    end
+
+    def emerge_package(pkg, emerge_options = nil)
+      emerge_options ||= default_emerge_install_options
+      "emerge #{emerge_options} #{expand_options(@new_resource.options)} #{pkg}"
+    end
+
+    def full_package_name(name, version)
+      if(version =~ /^\~(.+)/)        
+        # If we start with a tilde      
+        "~#{name}-#{$1}"          
+      else
+        "=#{name}-#{version}"     
+      end
+    end
 
     def unmerge(new_resource)
       package_data = eix_data(new_resource.name) || {}
@@ -12,69 +45,6 @@ module Gentoo
         Chef::Mixin::Command.run_command_with_systems_locale(
           :command => "emerge --unmerge --color n --nospinner --quiet #{new_resource.options} #{package_atom}"
         )
-      end
-    end
-
-
-    # Returns the portage package control file name:
-    # =net-analyzer/nagios-core-3.1.2 => chef.net-analyzer-nagios-core-3-1-2
-    # =net-analyzer/netdiscover => chef.net-analyzer-netdiscover
-    def package_conf_file(conf_type, name)
-      conf_dir = "/etc/portage/package.#{conf_type}"
-      raise Chef::Exceptions::Package, "#{conf_type} should be a directory." unless ::File.directory?(conf_dir)
-
-      package_atom = name.strip.split(/\s+/).first
-      package_file = package_atom.gsub(/[\/\.]/, "-").gsub(/[^a-z0-9_\-]/i, "")
-      return "#{conf_dir}/chef.#{package_file}"
-    end
-
-    def same_content?(filepath, content)
-      content.strip == ::File.read(filepath).strip
-    end
-
-    def create_package_conf_file(conf_file, content)
-      return nil if ::File.exists?(conf_file) && same_content?(conf_file, content)
-
-      ::File.open("#{conf_file}", "w") { |f| f << content + "\n" }
-      Chef::Log.info("Created #{conf_file} \"#{content}\".")
-      true
-    end
-
-    def delete_package_conf_file(conf_file)
-      return nil unless ::File.exists?(conf_file)
-
-      ::File.delete(package_foo_path)
-      Chef::Log.info("Deleted #{conf_file}")
-      true
-    end
-
-    # Creates or deletes per package portage attributes. Returns true if it
-    # changes (sets or deletes) something.
-    # * action == :create || action == :delete
-    # * foo_category =~ /\A(use|keywords|mask|unmask)\Z/
-    def manage_package_conf(action, conf_type, name, flags = nil)
-      conf_file = package_conf_file(conf_type, name)
-      case action
-      when :create
-        create_package_conf_file(conf_file, normalize_package_conf_content(name, flags))
-      when :delete
-        delete_package_conf_file(conf_file)
-      else
-        raise Chef::Exceptions::Package, "Unknown action :#{action}."
-      end
-    end
-
-    # Normalizes package conf content
-    def normalize_package_conf_content(name, flags = nil)
-      [ name, normalize_flags(flags) ].join(' ')
-    end
-
-    # Normalizes String / Arrays
-    def normalize_flags(flags)
-      if flags.is_a?(Array)
-        flags.uniq.sort.join(' ')
-      else
-        flags
       end
     end
 
