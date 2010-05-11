@@ -6,17 +6,20 @@ class Chef
   class Provider
     class Package
       class Portage < Chef::Provider::Package
-        include Gentoo::Portage::Emerge
+        include ::Gentoo::Portage::Emerge
 
         def install_package(name, version)
-          run_command_with_systems_locale( 
-            :command => emerge_package(full_package_name(name, version), default_emerge_install_options))
+          conditional_emerge(new_resource, :install)
         end
 
         def upgrade_package(name, version)
-          run_command_with_systems_locale( 
-            :command => emerge_package(full_package_name(name, version), default_emerge_upgrade_options))
+          conditional_emerge(new_resource, :upgrade)
         end
+
+        def candidate_version
+          @candidate_verison ||= self.package_info[:candidate_version]
+        end
+
       end
     end
   end
