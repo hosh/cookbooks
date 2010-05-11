@@ -1,4 +1,4 @@
-include Opscode::Gentoo::Portage
+include Gentoo::Portage
 
 action :create do
   manage_package_conf(:create, "mask", new_resource.package)

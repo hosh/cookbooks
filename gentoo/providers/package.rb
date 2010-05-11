@@ -1,4 +1,4 @@
-include Opscode::Gentoo::Portage
+include Gentoo::Portage
 
 action :install do
   conditional_emerge(new_resource, :install)
