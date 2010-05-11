@@ -33,7 +33,7 @@ emerge_sync = node[:gentoo][:cron][:emerge_sync]
 eix_sync_command = [ "eix-sync" ]
 eix_sync_command << "emerge -q -g -u portage" if emerge_sync[:always_upgrade_portage]
 
-cron "emerge_sync" do
+cron "eix_sync" do
   hour    emerge_sync[:hour]
   minute  emerge_sync[:minute]
   command eix_sync_command.join(' && ')
