@@ -37,7 +37,7 @@ module Gentoo
     end
 
     def unmerge(new_resource)
-      package_data = eix_data(new_resource.name) || {}
+      package_data = package_info_from_eix(new_resource.name) || {}
       if package_data[:current_version].to_s != ""
         package_atom = "#{package_data[:category]}/#{package_data[:package_name]}"
         package_atom = "=#{package_atom}-#{new_resource.version}" if new_resource.version
@@ -58,7 +58,7 @@ module Gentoo
         end
       }
 
-      package_data = eix_data(new_resource.name) || {}
+      package_data = package_info_from_eix(new_resource.name) || {}
       if package_data[:candidate_version].to_s == ""
         raise Chef::Exceptions::Package, "No candidate version available for #{new_resource.name}"
       end
@@ -102,7 +102,7 @@ module Gentoo
     # returned by eix.
     #
     #   # git is installed on the system
-    #   eix_data("git")
+    #   package_info_from_eix("git")
     #   => {
     #        :category => "dev-vcs",
     #        :package_name => "git",
@@ -110,18 +110,18 @@ module Gentoo
     #        :candidate_version => "1.6.4.4"
     #      }
     #   # git isn't installed
-    #   eix_data("git")
+    #   package_info_from_eix("git")
     #   => {
     #        :category => "dev-vcs",
     #        :package_name => "git",
     #        :current_version => "",
     #        :candidate_version => "1.6.4.4"
     #      }
-    #   eix_data("dev-vcs/git") == eix_data("git")
+    #   package_info_from_eix("dev-vcs/git") == package_info_from_eix("git")
     #   => true
-    #   eix_data("package/doesnotexist")
+    #   package_info_from_eix("package/doesnotexist")
     #   => nil
-    def eix_data(package_name)
+    def package_info_from_eix(package_name)
       eix = "/usr/bin/eix"
       eix_update = "/usr/bin/eix-update"
 
