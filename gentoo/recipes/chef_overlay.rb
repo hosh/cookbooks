@@ -26,7 +26,7 @@ chef_overlay = node[:gentoo][:overlays][:chef_overlay]
 git chef_overlay[:dir] do
   repository 'git://github.com/veszig/chef-overlay.git' 
   revision chef_overlay[:rev]
-  action :sync
+  action :checkout
 end
 
 portage_conf :chef_overlay do

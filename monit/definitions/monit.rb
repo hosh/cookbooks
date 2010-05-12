@@ -18,10 +18,13 @@
 
 define :monit, :enable => true, :source => nil, :cookbook => nil, :variables => {} do
   template_source =  params[:source] || "#{params[:name]}.monit.erb"
+  template_cookbook = params[:cookbook]
+
+  log "Fetching: cookbook = #{template_cookbook} / #{template_source}"
   
   template "/etc/monit.d/#{params[:name]}" do
     source template_source
-    cookbook params[:cookbook] if params[:cookbook]
+    cookbook template_cookbook
     owner "root"
     group "root"
     mode "0600"
@@ -31,14 +34,31 @@ define :monit, :enable => true, :source => nil, :cookbook => nil, :variables => 
   end
 end
 
-define :monit_net_service, :enable => true, :source => 'net_service.monit.erb', :cookbook => 'monit', :process => {}, :variables => {} do
+define :monit_service, :enable => true, :source => 'service.monit.erb', :cookbook => 'monit', :process => {}, :variables => {} do
   process_info = params[:process] || {}
-
+  
   # Set defaults
   process_info[:name] ||= params[:name]
   process_info[:pid_file] ||= "/var/run/#{process_info[:name]}.pid"
   process_info[:start_cmd] ||= "/etc/init.d/#{process_info[:name]} zap start"
   process_info[:stop_cmd] ||= "/etc/init.d/#{process_info[:name]} stop"
+
+  template_variables = { :process => process_info }.merge(params[:variables])
+  template_source = params[:source]
+  template_cookbook = params[:cookbook]
+
+  monit params[:name] do
+    source template_source
+    cookbook template_cookbook
+    enable params[:enable]
+    variables template_variables
+  end
+end
+
+define :monit_net_service, :enable => true, :source => 'net_service.monit.erb', :cookbook => 'monit', :process => {}, :variables => {} do
+  process_info = params[:process] || {}
+
+  # Set defaults
   process_info[:listen_ips] ||= [ %w( 127.0.0.1 80) ]
   process_info[:timeout_before_restart] ||= '15'
 
@@ -48,19 +68,16 @@ define :monit_net_service, :enable => true, :source => 'net_service.monit.erb', 
     [ process_info[:listen_ips] ]
   end
 
-  template_variables = { :process => process_info }.merge(params[:variables])
+  template_cookbook = params[:cookbook]
   template_source = params[:source]
 
-  template "/etc/monit.d/#{params[:name]}" do
+  monit_service params[:name] do
     source template_source
-    cookbook params[:cookbook] if params[:cookbook]
-    owner "root"
-    group "root"
-    mode "0600"
-    variables template_variables
-    notifies :reload, resources(:service => "monit")
-    action params[:enable] ? :create : :delete
+    cookbook template_cookbook
+    process process_info
+    variables params[:variables] 
   end
+
 end
 
 define :monit_http_service, :enable => true, :source => nil, :cookbook => nil, :process => {}, :variables => {} do
