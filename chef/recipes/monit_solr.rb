@@ -1,9 +1,9 @@
 # 
-# Use this to monitor chef-server with monit
+# Use this to monitor chef solr with monit
 #
 # Author:: Ho-Sheng Hsiao <hosh@sparkfly.com>
 # Cookbook Name:: chef
-# Recipe:: chef::monit_server
+# Recipe:: chef::monit_solr
 #
 # Copyright 2010 Sparkfly
 #
@@ -20,9 +20,9 @@
 # limitations under the License.
 
 if node.recipe?('monit')
-  monit_http_service 'chef-server' do
-    process :listen_ips => [[nil, '4000']],
-      :pid_file => '/var/run/chef/server.4000.pid',
+  monit_net_service 'chef-solr' do
+    process :listen_ips => [[nil, '8983']],
+      :pid_file => '/var/run/chef/solr.pid',
       :timout_before_restart => '30'
   end
 end
