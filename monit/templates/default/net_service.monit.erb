@@ -1,0 +1,8 @@
+check process <%= @process[:name] %> with pidfile <%= @process[:pid_file] %>
+  start program = "<%= @process[:start_cmd] %>"
+  stop program  = "<%= @process[:stop_cmd] %>"
+<% @process[:listen_ips].each do |host, port| -%>
+  if failed <%= "host #{host}" if host %> port <%= port %> <% if @process[:protocol] %>protocol <%= @process[:protocol] %><% end%>
+    with timeout <%= @process[:timeout_before_restart] %> seconds then restart
+<% end -%>
+  if 3 restarts within 5 cycles then timeout

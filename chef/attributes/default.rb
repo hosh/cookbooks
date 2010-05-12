@@ -55,6 +55,7 @@ else
   set_unless[:chef][:server_log]  = "#{chef[:log_dir]}/server.log"
 end
 
-set_unless[:chef][:server_fqdn]     = node.has_key?(domain) ? "chef.#{domain}" : "chef"
+#set_unless[:chef][:server_fqdn]     = node.has_key?(domain) ? "chef.#{domain}" : "chef"
+set_unless[:chef][:server_fqdn]     = node[:fqdn]
 set_unless[:chef][:server_ssl_req]  = "/C=US/ST=Several/L=Locality/O=Example/OU=Operations/" +
   "CN=#{chef[:server_fqdn]}/emailAddress=ops@#{chef[:server_fqdn]}"
