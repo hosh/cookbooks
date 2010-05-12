@@ -1,5 +1,7 @@
 server {
-  listen <%= @node[:gentoo][:portage_binhost_server][:listen] %>;                 
+  <% @listen_ips.each do |ip, port| %>
+  listen <%= ip || '*' %>:<%= port %>;
+  <% end %>
   server_name  <%= @node[:gentoo][:portage_binhost_server][:server_name] %>;
 
   access_log  <%= @node[:nginx][:log_dir] %>/portage_binhost.access.log;

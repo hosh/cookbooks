@@ -26,17 +26,37 @@
 include_recipe 'gentoo::portage'
 include_recipe 'nginx'
 
-directory node[:gentoo][:portage_binhost_server][:repo_dir] do
+binhost_server = node[:gentoo][:portage_binhost_server]
+
+#log "binhost_server = #{binhost_server.inspect}"
+
+directory binhost_server[:repo_dir] do
   owner 'root'
   group 'root'
   mode '0755'
   recursive true
   action :create
-  not_if "test -d #{node[:gentoo][:portage_binhost_server][:repo_dir]}"
+  not_if "test -d #{binhost_server[:repo_dir]}"
 end
 
-nginx_available_site :portage_binhost 
+ips = (binhost_server[:ips].any? ? binhost_server[:ips] : [ nil ] )
+
+listen_ips = ips.inject([]) do |ips, ip|
+  ips << binhost_server[:ports].map { |port| [ ip, port ] }.flatten
+end
+
+log "Setting up nginx to listen on: #{listen_ips.inspect}"
+
+nginx_available_site :portage_binhost do
+  variables(:listen_ips => listen_ips)
+end
+
 nginx_site :portage_binhost do
   enable true
 end
 
+
+monit_nginx :portage_binhost do
+  cookbook 'nginx'
+  listen listen_ips
+end
