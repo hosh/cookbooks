@@ -20,7 +20,9 @@
 # limitations under the License.
 
 if node.recipe?('monit')
-  monit_http_service 'chef-server' do
+  # Chef server requires authorization, so monit http protocol check fails
+  # Use monit_net_service instead for generic net monitoring
+  monit_net_service 'chef-server' do
     process :listen_ips => [[nil, '4000']],
       :pid_file => '/var/run/chef/server.4000.pid',
       :timout_before_restart => '30'
