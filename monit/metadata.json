@@ -1,0 +1,76 @@
+{
+    "suggestions": {
+    },
+    "license": "Apache 2.0",
+    "recipes": {
+    },
+    "maintainer_email": "veszig@done.hu",
+    "conflicting": {
+    },
+    "platforms": {
+      "gentoo": [
+
+      ]
+    },
+    "providing": {
+    },
+    "description": "Installs and configures Monit",
+    "attributes": {
+      "monit/mailservers": {
+        "required": "optional",
+        "calculated": false,
+        "choice": [
+
+        ],
+        "default": [
+          "smtp.$domain"
+        ],
+        "type": "array",
+        "recipes": [
+
+        ],
+        "description": "List of mailservers for alert delivery",
+        "display_name": "Mailservers"
+      },
+      "monit/alert_mail_from": {
+        "required": "optional",
+        "calculated": false,
+        "choice": [
+
+        ],
+        "default": "monit@$fqdn",
+        "type": "string",
+        "recipes": [
+
+        ],
+        "description": "Sender of monit alert emails",
+        "display_name": "Alert mail From"
+      },
+      "monit/alert_mail_to": {
+        "required": "optional",
+        "calculated": false,
+        "choice": [
+
+        ],
+        "default": "root@$domain",
+        "type": "string",
+        "recipes": [
+
+        ],
+        "description": "Recipient of monit alert emails",
+        "display_name": "Alert mail To"
+      }
+    },
+    "replacing": {
+    },
+    "version": "0.1.0",
+    "dependencies": {
+    },
+    "groupings": {
+    },
+    "long_description": "",
+    "name": "monit",
+    "recommendations": {
+    },
+    "maintainer": "Gábor Vészi"
+  }

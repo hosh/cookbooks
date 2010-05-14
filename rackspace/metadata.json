@@ -1,0 +1,29 @@
+{
+    "suggestions": {
+    },
+    "license": "Apache 2.0",
+    "recipes": {
+    },
+    "maintainer_email": "hosh@sparkfly.com",
+    "conflicting": {
+    },
+    "platforms": {
+    },
+    "providing": {
+    },
+    "description": "Installs/Configures Rackspace Cloud-specific stuff",
+    "attributes": {
+    },
+    "replacing": {
+    },
+    "version": "0.1.0",
+    "dependencies": {
+    },
+    "groupings": {
+    },
+    "long_description": "= DESCRIPTION:\n\nRackspace Cloud Server recipes\n\n== hosts\nThis recipe sets up Ghetto DNS. It queries the server index and builds up a list of nodes that\nhave a 172.* address on eth1. From there, it generates a /etc/hosts file. The reason to do this\nis to be able to route all requests through the private IP addresses. This recipe was written \nto assume your FQDN points to the private IP addresses, and you are using DNS aliases to refer\nto the public IP address.\n\nAdditionally, you can specify site-wide IP addresses using the databag \"cloud-hosts\". For example,\nto specify a global \"chef-server\":\n\ndatabag: \"cloud-hosts\"\n  id: \"chef-server\"\n  ip: 172.172.172.172\n\nThe name for the data-bag is subject to change in future releases of this cookbook. Future \nversions may also include aliases\n\n= REQUIREMENTS:\n\n= ATTRIBUTES: \n\n= USAGE:\n\n",
+    "name": "rackspace",
+    "recommendations": {
+    },
+    "maintainer": "Ho-Sheng Hsiao"
+  }
