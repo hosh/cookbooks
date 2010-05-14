@@ -31,8 +31,25 @@ template '/etc/rsyncd.conf' do
   variables(:rsyncd => node[:gentoo][:rsyncd])
 end
 
+# Overwrite the Gentoo-supplied one with our own so it is compatible
+# with monit forcibly restarting a crashed rsyncd
+remote_file '/etc/init.d/rsyncd' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  source 'init.d/rsyncd'
+end
+
 service 'rsyncd' do
   supports :restart => true
   action :start
   subscribes :restart, resources(:template => '/etc/rsyncd.conf'), :immediately
+end
+
+if node.recipe?('monit')
+  monit_net_service 'rsyncd' do
+    process :listen_ips => node[:gentoo][:rsyncd][:monit_ports],
+      :start_cmd => '/etc/init.d/rsyncd force_restart',
+      :timout_before_restart => '15'
+  end
 end

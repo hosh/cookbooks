@@ -98,6 +98,7 @@ when 'gentoo'
   default[:gentoo][:rsyncd][:exclude] = %w( distfiles/ packages/ )
   default[:gentoo][:rsyncd][:hosts_allow] = ''
   default[:gentoo][:rsyncd][:hosts_deny] = ''
+  default[:gentoo][:rsyncd][:monit_ports] = [[ nil, '873']]
 
   # portage_binhost_server
   default[:gentoo][:portage_binhost_server][:ips] = [] # Listen to all
