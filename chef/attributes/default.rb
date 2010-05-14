@@ -59,3 +59,9 @@ end
 set_unless[:chef][:server_fqdn]     = node[:fqdn]
 set_unless[:chef][:server_ssl_req]  = "/C=US/ST=Several/L=Locality/O=Example/OU=Operations/" +
   "CN=#{chef[:server_fqdn]}/emailAddress=ops@#{chef[:server_fqdn]}"
+
+# Drop the password in here
+set[:chef][:amqp_pass_file] = '/etc/chef/amqp_pass'
+
+# Good for small sites, if you are running chef-server on a single 256M slice
+default[:chef][:solr][:heap_size] = '64M' 

@@ -22,3 +22,4 @@ file_cache_path    "<%= @node[:chef][:cache_path] %>"
 pid_file           "<%= @node[:chef][:run_path] %>/client.pid"
 
 Mixlib::Log::Formatter.show_time = <%= @show_time %>
+amqp_pass IO.read('<%= @node[:chef][:amqp_pass_file] %>').strip

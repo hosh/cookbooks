@@ -31,6 +31,21 @@ include_recipe "chef::client"
   service svc do
     action :nothing
   end
+  if node.recipe?('monit')
+    case node.platform
+    when 'gentoo'
+      template "/etc/init.d/#{svc}" do
+        source "init.d/#{svc}.erb"
+        owner 'root'
+        group 'root'
+        mode '0755'
+      end
+
+    else
+      Chef::Log.warn "Monit may not play nice with chained services #{svc}" 
+    end
+  end
+
 end
 
 if node[:chef][:webui_enabled]
@@ -45,6 +60,19 @@ if node[:chef][:server_log] == "STDOUT"
 else
   server_log = "\"#{node[:chef][:server_log]}\""
   show_time  = "true"
+end
+
+# Create empty amqp pass file
+file node[:chef][:amqp_pass_file] do
+  action :touch
+  not_if "test -f #{node[:chef][:amqp_pass_file]}"
+end
+
+template "/etc/chef/solr.rb" do
+  source "solr.rb.erb"
+  owner 'root'
+  group root_group
+  mode '0644'
 end
 
 template "/etc/chef/server.rb" do

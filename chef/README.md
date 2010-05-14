@@ -57,6 +57,20 @@ The `chef::server_proxy` recipe uses the following cookbook:
 
 * apache2
 
+Monit
+-----
+
+As an alternative to runit, you can use monit to supervise all the chef-server components:
+
+    monit_solr
+    monit_solr_indexer
+    monit_server
+    monit_server_webui
+
+If you are using Gentoo and the chef-overlay with monit, the chef::server recipe will replace the /etc/init.d/ chef
+files so that the service scripts do not depend on each other. This allows monit to independently startup each
+component.
+
 ATTRIBUTES
 ==========
 
