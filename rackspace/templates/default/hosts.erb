@@ -11,5 +11,5 @@
 
 # Private IP nodes
 <% @hosts.keys.sort.each do |ip| %>
-<%= ip %>       <%= @hosts[ip]["fqdn"] %> <%= (@hosts[ip]["dns_aliases"] || []).sort.join(" ") %>
+<%= ip %>       <%= (@hosts[ip]).join(" ") %>
 <% end %>

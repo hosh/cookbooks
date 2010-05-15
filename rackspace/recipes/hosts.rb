@@ -41,10 +41,34 @@ end
 #            netmask
 #            ...
 #         ipv6 addr
-search(:node, "network_interfaces_eth1_addresses:172.*") do |n|
-  addresses = n['network']['interfaces']['eth1']['addresses'].map { |addr| addr[0] }
-  ip = addresses.select { |addr| addr.to_s =~ /172.*/ }.first
-  hosts[ip] = n
+
+
+rackspace_hosts = node[:rackspace][:hosts]
+
+# Determine private ip address
+private_addresses =  node[:network][:interfaces][rackspace_hosts[:private_eth]][:addresses].map { |addr| addr[0] }
+private_ip = private_addresses.select { |addr| addr.to_s =~ /#{rackspace_hosts[:private_net]}/ }.first
+
+Chef::Log.info("Detected private_ip: #{private_ip} ( #{private_addresses.inspect} )")
+
+# Report back to Server Index. Note this is executed at compile-time
+unless node[:rackspace][:private_ip] == private_ip  
+  node[:rackspace][:private_ip] = private_ip 
+  Chef::Log.info("New private_ip detected, pushing back to server index.")
+  node.save
+end
+
+search(:node, "rackspace_private_ip:#{rackspace_hosts[:private_net]}" ) do |n|
+  ip = n[:rackspace][:private_ip]
+  hostnames = [ n[:fqdn] ]
+  hostnames << (n[:rackspace][:private_aliases] || []).sort
+  hosts[ip] = hostnames.flatten
+end
+
+# If the server index has not caught up yet, add this so we can at 
+# least reference ourselves
+unless hosts[private_ip]
+  hosts[private_ip] = [ node[:fqdn] ]
 end
 
 template "/etc/hosts" do
