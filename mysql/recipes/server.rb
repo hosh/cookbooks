@@ -45,7 +45,7 @@ when "debian","ubuntu"
     source "debian.cnf.erb"
     owner "root"
     group "root"
-    mode "0644"
+    mode "0600"
   end
 end
 
@@ -55,9 +55,13 @@ end
 
 service "mysql" do
   service_name value_for_platform([ "centos", "redhat", "suse" ] => {"default" => "mysqld"}, "default" => "mysql")
-
+  if (platform?("ubuntu") && node.platform_version.to_f >= 10.04)
+    restart_command "restart mysql"
+    stop_command "stop mysql"
+    start_command "start mysql"
+  end
   supports :status => true, :restart => true, :reload => true
-  action :enable
+  action :nothing
 end
 
 template value_for_platform([ "centos", "redhat", "suse" ] => {"default" => "/etc/my.cnf"}, "default" => "/etc/mysql/my.cnf") do
@@ -81,11 +85,13 @@ rescue
   end
 end
 
-ruby_block "save node data" do
-  block do
-    node.save
+unless Chef::Config[:solo]
+  ruby_block "save node data" do
+    block do
+      node.save
+    end
+    action :create
   end
-  action :create
 end
 
 execute "mysql-install-privileges" do
