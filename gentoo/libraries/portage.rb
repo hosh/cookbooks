@@ -138,20 +138,27 @@ module Gentoo
         end
       end
 
-      def package_info_from_portage(package_name)
-        status = popen4(emerge_cmd("--search #{name}")) do |pid, stdin, stdout, stderr|
-          candidate_version = parse_emerge(name, stdout.read)
+      def package_info_from_portage(package_atom)
+        portage_data = {}
+        package_name = package_atom.split('/').last
+        
+        # When emerge is set to --quiet, it will not emit version information
+        status = popen4("/usr/bin/emerge --verbose --search #{package_name}") do |pid, stdin, stdout, stderr|
+          portage_data = parse_emerge_data(package_name, stdout.read)
         end
 
         unless status.exitstatus == 0
           raise Chef::Exceptions::Package, "emerge --search failed - #{status.inspect}!"
         end
 
-        return candidate_version
+        Chef::Log.info "Found candidate package: #{portage_data.inspect}"
+
+        return portage_data
       end
 
-      def parse_emerge(package, txt)
+      def parse_emerge_data(package, txt)
         available, installed, category, name, pkg = nil
+        Chef::Log.info "Output from emerge --search: #{txt}"
         txt.each do |line|
           if line =~ /\*(.*)/
             pkg = $1.strip
@@ -166,14 +173,13 @@ module Gentoo
           end
         end
 
-        # Huh?
         available = installed unless available
 
-        { 
+        return { 
           :category => category,
           :package_name => name,
           :current_version => installed, 
-          :candidate_version => installed 
+          :candidate_version => available 
         }
       end
 
