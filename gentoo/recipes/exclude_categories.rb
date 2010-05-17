@@ -32,5 +32,5 @@ template node[:gentoo][:rsync][:exclude_rsync_file] do
 end
 
 portage_conf :rsync_excludes do
-  appends [ :PORTAGE_RSYNC_EXTRA_OPTS, "--exclude-from=#{node[:gentoo][:rsync][:exclude_rsync_file]}" ]
+  appends [ :PORTAGE_RSYNC_EXTRA_OPTS, "--exclude-from=#{node[:gentoo][:rsync][:exclude_rsync_file]} --delete-excluded" ]
 end
