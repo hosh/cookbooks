@@ -45,7 +45,7 @@ end
 ghetto_dns = node[:ghetto_dns][:hosts]
 
 # Ohai manages :rackspace, if you are on rackspace.
-private_ip = if node[:cloud][:provider] == 'rackspace'
+private_ip = if node[:cloud] && node[:cloud][:provider] == 'rackspace'
   Chef::Log.info("Rackspace Cloud Server detected")
   node[:rackspace][:private_ip]
 else 
@@ -68,7 +68,7 @@ else
 end
 
 def private_aliases_from(n)
-  (n[:ghetto_dns][:private_aliases] || []).sort
+  ((n[:ghetto_dns] && n[:ghetto_dns][:private_aliases]) || []).sort
 end
 
 def private_host(n)
