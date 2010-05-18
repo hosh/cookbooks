@@ -42,34 +42,51 @@ end
 #            ...
 #         ipv6 addr
 
+ghetto_dns = node[:ghetto_dns][:hosts]
 
-rackspace_hosts = node[:rackspace][:hosts]
+# Ohai manages :rackspace, if you are on rackspace.
+private_ip = if node[:cloud][:provider] == 'rackspace'
+  Chef::Log.info("Rackspace Cloud Server detected")
+  node[:rackspace][:private_ip]
+else 
+  Chef::Log.info("Rackspace Cloud Server not detected. Emulating private_ip device")
 
-# Determine private ip address
-private_addresses =  node[:network][:interfaces][rackspace_hosts[:private_eth]][:addresses].map { |addr| addr[0] }
-private_ip = private_addresses.select { |addr| addr.to_s =~ /#{rackspace_hosts[:private_net]}/ }.first
+  # Determine private ip address
+  private_addresses =  node[:network][:interfaces][ghetto_dns[:private_eth]][:addresses].map { |addr| addr[0] }
+  private_ip = private_addresses.select { |addr| addr.to_s =~ /#{ghetto_dns[:private_net]}/ }.first
 
-Chef::Log.info("Detected private_ip: #{private_ip} ( #{private_addresses.inspect} )")
+  Chef::Log.info("Detected private_ip: #{private_ip} ( #{private_addresses.inspect} )")
 
-# Report back to Server Index. Note this is executed at compile-time
-unless node[:rackspace][:private_ip] == private_ip  
-  node[:rackspace][:private_ip] = private_ip 
-  Chef::Log.info("New private_ip detected, pushing back to server index.")
-  node.save
+  # Report back to Server Index. Note this is executed at compile-time
+  unless node[:rackspace][:private_ip] == private_ip  
+    node[:rackspace][:private_ip] = private_ip 
+    Chef::Log.info("New private_ip detected, pushing back to server index.")
+    node.save
+  end
+
+  private_ip
 end
 
-search(:node, "rackspace_private_ip:#{rackspace_hosts[:private_net]}" ) do |n|
+def private_aliases_from(n)
+  (n[:ghetto_dns][:private_aliases] || []).sort
+end
+
+def private_host(n)
+  [ n[:fqdn] ] + private_aliases_from(n)
+end
+
+search(:node, "rackspace_private_ip:#{ghetto_dns[:private_net]}" ) do |n|
   ip = n[:rackspace][:private_ip]
-  hostnames = [ n[:fqdn] ]
-  hostnames << (n[:rackspace][:private_aliases] || []).sort
-  hosts[ip] = hostnames.flatten
+  hosts[ip] = private_host(n)
 end
+
+Chef::Log.debug("Host file: #{hosts.inspect}")
 
 # If the server index has not caught up yet, add this so we can at 
 # least reference ourselves
-unless hosts[private_ip]
-  hosts[private_ip] = [ node[:fqdn] ]
-end
+hosts[private_ip] = private_host(node) unless hosts[private_ip]
+
+Chef::Log.info("Host file: #{hosts.inspect}")
 
 template "/etc/hosts" do
   source "hosts.erb"
